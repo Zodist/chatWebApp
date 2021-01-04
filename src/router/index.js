@@ -7,6 +7,12 @@ import ChatRoomList from '../components/ChatRoomList'
 import ChatRoom from '../components/ChatRoom'
 
 Vue.use(Router)
+
+const requireAuth = () => (from, to, next) => {
+    const isAuthenticated = false
+    if (isAuthenticated) return next()
+    next('/login?returnPath=me')
+}
 export default new Router({
     mode: 'history',
     routes: [
@@ -20,7 +26,8 @@ export default new Router({
         },
         {
             path: '/ChatRoomList',
-            component: ChatRoomList
+            component: ChatRoomList,
+            beforeEnter: requireAuth()
         },
         {
             path: '/chatRoom',

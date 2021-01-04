@@ -18,14 +18,14 @@
                 hint="At least 4 characters"
                 counter
                 @click:append="show1 = !show1"
-                @keyup.enter="login"
+                @keyup.enter="onSubmit"
               ></v-text-field>
             </v-form>
             <v-alert type="error" :value="showError">LOGIN DENIED</v-alert>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn @click="login" color="success">login</v-btn>
+            <v-btn @click="onSubmit" color="success">login</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
@@ -48,26 +48,22 @@ export default {
     showError: false
   }),
   methods: {
-    login() {
-      let uri = "/api/login";
-      let params = {
-        id: this.id,
-        password: this.password
-      };
-      this.$http
-        .post(uri, params)
-        .then(Response => {
-          console.log(Response.data);
-          if (Response.data) {
-            alert("Login granted");
-          } else {
-            // alert('Login Denied')
-            this.showError = true;
-          }
-        })
-        .catch(error => {
-          console.log(error);
-        });
+    onSubmit() {
+      let id = this.id
+      let password = this.password
+      this.$store.dispatch('LOGIN', {id, password})
+        .then(() => this.redirect())
+        .catch(({message}) => this.msg = message)
+    },
+    redirect() {
+      const {search} = window.location
+      const tokens = search.replace(/^\?/, '').split('&')
+      const {returnPath} = tokens.reduce((qs, tkn) => {
+        const pair = tkn.split('=')
+        qs[pair[0]] = decodeURIComponent(pair[1])
+        return qs
+      }, {})
+      this.$router.push(returnPath)
     }
   }
 };
